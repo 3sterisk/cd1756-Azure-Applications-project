@@ -89,7 +89,7 @@ def authorized():
         cache = _load_cache()
         # TODO: Acquire a token from a built msal app, along with the appropriate redirect URI
 
-        result = _build_msal_app(cache=cache).acquire_token_by_auth_code_flow(request.args['code'], scopes=Config.SCOPE, redirect_uri=url_for('authorized', _external=True, _scheme='https'))
+        result = _build_msal_app(cache=cache).acquire_token_by_authorization_code(request.args['code'], scopes=Config.SCOPE, redirect_uri=url_for('authorized', _external=True, _scheme='https'))
         if "error" in result:
             return render_template("auth_error.html", result=result)
         session["user"] = result.get("id_token_claims")
@@ -132,5 +132,5 @@ def _build_msal_app(cache=None, authority=None):
 def _build_auth_url(authority=None, scopes=None, state=None):
     # TODO: Return the full Auth Request URL with appropriate Redirect URI
     auth_url = _build_msal_app(authority=authority)
-    auth_url.initiate_auth_code_flow(scopes=scopes, state=state, redirect_uri=url_for('authorized', _external=True, _scheme='https'))
+    auth_url.get_authorization_request_url(scopes=scopes, state=state, redirect_uri=url_for('authorized', _external=True, _scheme='https'))
     return auth_url
